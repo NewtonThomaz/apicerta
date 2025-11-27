@@ -1,5 +1,7 @@
 package br.com.nextgen.Controller;
 
+import br.com.nextgen.DTO.ColaboradorDTO; // Importe o DTO de Resposta
+import br.com.nextgen.DTO.ColaboradorRequestDTO; // Importe o DTO de Requisição
 import br.com.nextgen.Entity.Colaborador;
 import br.com.nextgen.Service.ColaboradorService;
 import jakarta.validation.Valid;
@@ -41,9 +43,9 @@ public class ColaboradorController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<Colaborador> criarColaborador(@RequestBody @Valid Colaborador colaborador) {
-        Colaborador novoColaborador = colaboradorService.salvar(colaborador);
-        return ResponseEntity.status(HttpStatus.CREATED).body(novoColaborador);
+    public ResponseEntity<ColaboradorDTO> criarColaborador(@RequestBody @Valid ColaboradorRequestDTO dto) {
+        Colaborador novoColaborador = colaboradorService.salvar(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ColaboradorDTO(novoColaborador));
     }
 
     @PutMapping("/{id}")

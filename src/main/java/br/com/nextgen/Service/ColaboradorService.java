@@ -1,5 +1,11 @@
 package br.com.nextgen.Service;
 
+import br.com.nextgen.Repository.TalhaoRepository;
+import br.com.nextgen.Repository.UsuarioRepository;
+import br.com.nextgen.Entity.Permissao;
+import br.com.nextgen.Entity.Usuario;
+import br.com.nextgen.Entity.Talhao;
+import br.com.nextgen.DTO.ColaboradorRequestDTO;
 import br.com.nextgen.Entity.Colaborador;
 import br.com.nextgen.Repository.ColaboradorRepository;
 import org.springframework.stereotype.Service;
@@ -12,9 +18,13 @@ import java.util.UUID;
 public class ColaboradorService {
 
     private final ColaboradorRepository colaboradorRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final TalhaoRepository talhaoRepository;
 
-    public ColaboradorService(ColaboradorRepository colaboradorRepository) {
+    public ColaboradorService(ColaboradorRepository colaboradorRepository, UsuarioRepository usuarioRepository, TalhaoRepository talhaoRepository) {
         this.colaboradorRepository = colaboradorRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.talhaoRepository = talhaoRepository;
     }
 
     public List<Colaborador> listarTodos() {
@@ -26,7 +36,22 @@ public class ColaboradorService {
         return colaborador.orElse(null);
     }
 
-    public Colaborador salvar(Colaborador colaborador) {
+    public Colaborador salvar(ColaboradorRequestDTO dto) {
+        // 1. Busca quem será o colaborador pelo E-mail (que veio do front)
+        Usuario usuario = usuarioRepository.findByEmail(dto.email())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o email: " + dto.email()));
+
+        // 2. Busca o talhão pelo ID (que veio do front)
+        Talhao talhao = talhaoRepository.findById(dto.idTalhao())
+                .orElseThrow(() -> new RuntimeException("Talhão não encontrado"));
+
+        // 3. Monta a entidade
+        Colaborador colaborador = new Colaborador();
+        colaborador.setUsuario(usuario);
+        colaborador.setTalhao(talhao);
+        // Converte a String do DTO para o Enum do banco
+        colaborador.setPermissao(Permissao.valueOf(dto.permissao()));
+
         return colaboradorRepository.save(colaborador);
     }
 

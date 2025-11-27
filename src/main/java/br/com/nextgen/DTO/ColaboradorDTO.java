@@ -5,7 +5,6 @@ import java.util.UUID;
 
 public record ColaboradorDTO(UUID id, String email, String permissao) {
     public ColaboradorDTO(Colaborador c) {
-        // Pega o email do Usuario vinculado
         this(c.getId(), c.getUsuario().getEmail(), c.getPermissao().toString());
     }
 }

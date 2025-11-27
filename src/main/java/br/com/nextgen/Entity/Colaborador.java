@@ -42,6 +42,7 @@ public class Colaborador {
     @Column(name = "permissao", nullable = false)
     private Permissao permissao;
 
+    @NotNull(message = "O ID do Talhão é obrigatório.")
     @ManyToOne
     @JoinColumn(name = "id_talhao", nullable = false)
     private Talhao talhao;
