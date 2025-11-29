@@ -13,6 +13,9 @@ public record TalhaoDetalhadoDTO(
         Double tamanho,
         Medida medida,
         Boolean ativo,
+        // --- NOVO CAMPO ADICIONADO ---
+        UUID idUsuario,
+        // -----------------------------
         List<CulturaDTO> culturas,
         List<OperacaoDTO> operacoes,
         List<ColaboradorDTO> colaboradores,
@@ -27,6 +30,11 @@ public record TalhaoDetalhadoDTO(
                 talhao.getTamanho(),
                 talhao.getMedida(),
                 talhao.getAtivo(),
+
+                // --- MAPEAMENTO DO NOVO CAMPO ---
+                // Pega o ID do usuário dono do talhão
+                talhao.getUsuario() != null ? talhao.getUsuario().getId() : null,
+                // --------------------------------
 
                 // Converte a lista de entidades Cultura para CulturaDTO
                 talhao.getCulturas() != null
@@ -43,7 +51,7 @@ public record TalhaoDetalhadoDTO(
                         ? talhao.getColaboradores().stream().map(ColaboradorDTO::new).collect(Collectors.toList())
                         : List.of(),
 
-                // Sensores (Envia null se não houver lógica de busca direta ainda)
+                // Sensores
                 null,
                 null
         );

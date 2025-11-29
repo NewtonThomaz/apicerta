@@ -1,5 +1,6 @@
 package br.com.nextgen.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -41,6 +42,7 @@ public class Operacao {
     @ManyToOne
     @JoinColumn(name = "id_talhao", nullable = false)
     @ToString.Exclude
+    @JsonIgnore
     @EqualsAndHashCode.Exclude
     private Talhao talhao;
 }

@@ -45,9 +45,7 @@ public class Colaborador {
     @NotNull(message = "O ID do Talhão é obrigatório.")
     @ManyToOne
     @JoinColumn(name = "id_talhao", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Talhao talhao;
-//    @ManyToMany(mappedBy = "colaboradores")
-//    @ToString.Exclude
-//    @EqualsAndHashCode.Exclude
-//    private List<Talhao> talhoes;
 }

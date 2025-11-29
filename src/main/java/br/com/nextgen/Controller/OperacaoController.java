@@ -1,5 +1,7 @@
 package br.com.nextgen.Controller;
 
+import br.com.nextgen.DTO.OperacaoDTO;
+import br.com.nextgen.DTO.OperacaoRequestDTO;
 import br.com.nextgen.Entity.Operacao;
 import br.com.nextgen.Service.OperacaoService;
 import jakarta.validation.Valid;
@@ -40,10 +42,21 @@ public class OperacaoController {
         return ResponseEntity.ok(operacoes);
     }
 
+    @GetMapping("/talhao/{id}")
+    public ResponseEntity<List<OperacaoDTO>> listarPorTalhao(@PathVariable UUID id) {
+        List<Operacao> operacoes = operacaoService.buscarPorTalhao(id);
+
+        List<OperacaoDTO> dtos = operacoes.stream()
+                .map(OperacaoDTO::new)
+                .toList();
+
+        return ResponseEntity.ok(dtos);
+    }
+
     @PostMapping("/")
-    public ResponseEntity<Operacao> criarOperacao(@RequestBody @Valid Operacao operacao) {
-        Operacao novaOperacao = operacaoService.salvar(operacao);
-        return ResponseEntity.status(HttpStatus.CREATED).body(novaOperacao);
+    public ResponseEntity<OperacaoDTO> criarOperacao(@RequestBody @Valid OperacaoRequestDTO dto) {
+        Operacao novaOperacao = operacaoService.salvar(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new OperacaoDTO(novaOperacao));
     }
 
     @PutMapping("/{id}")

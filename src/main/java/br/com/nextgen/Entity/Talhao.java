@@ -1,5 +1,6 @@
 package br.com.nextgen.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -48,18 +49,19 @@ public class Talhao {
     private Medida medida;
 
     @OneToMany(mappedBy = "talhao")
-    @ToString.Exclude            // <--- AQUI
-    @EqualsAndHashCode.Exclude   // <--- AQUI
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<LeituraTemperatura> leiturasTemperatura;
 
     @OneToMany(mappedBy = "talhao")
-    @ToString.Exclude            // <--- AQUI
-    @EqualsAndHashCode.Exclude   // <--- AQUI
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<LeituraUmidade> leiturasUmidade;
 
     @OneToMany(mappedBy = "talhao")
-    @ToString.Exclude            // <--- AQUI
-    @EqualsAndHashCode.Exclude   // <--- AQUI
+    @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<Colaborador> colaboradores;
 
     @ManyToMany
@@ -74,6 +76,7 @@ public class Talhao {
 
     @OneToMany(mappedBy = "talhao", cascade = CascadeType.ALL)
     @ToString.Exclude
+    @JsonIgnore
     @EqualsAndHashCode.Exclude
     private List<Operacao> operacoes;
 
