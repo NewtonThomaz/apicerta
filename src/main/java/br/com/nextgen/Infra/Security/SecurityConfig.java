@@ -29,28 +29,34 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
-                // AQUI ESTÁ A MÁGICA: Habilitamos o CORS no nível de segurança
+                // Habilitamos o CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
+                        // Rotas públicas de autenticação
                         .requestMatchers(HttpMethod.POST, "/usuarios/auth").permitAll()
                         .requestMatchers(HttpMethod.POST, "/usuarios/register").permitAll()
+
+                        // NOVA LINHA: Libera o acesso às imagens do bucket local
+                        // Isso permite que o navegador carregue http://localhost:8080/uploads/foto.png
+                        .requestMatchers("/uploads/**").permitAll()
+
+                        // Qualquer outra rota exige login
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
-    // Define explicitamente quem pode acessar a API
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Libera o acesso para o seu Front (localhost:3000) e também 127.0.0.1 caso use esse IP
+        // Libera o acesso para o seu Front (localhost:3000) e também 127.0.0.1
         configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://127.0.0.1:3000"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "TRACE", "CONNECT"));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true); // Importante se você usar cookies no futuro
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

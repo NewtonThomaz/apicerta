@@ -2,6 +2,8 @@ package br.com.nextgen.Service;
 
 import br.com.nextgen.Entity.Usuario;
 import br.com.nextgen.Repository.UsuarioRepository;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,17 +18,15 @@ import java.util.UUID;
 public class UsuarioService implements UserDetailsService {
 
     private final UsuarioRepository usuarioRepository;
-    // Injeção de dependência do Encoder via construtor pode criar dependência circular,
-    // então em alguns casos usamos @Lazy ou injetamos na chamada.
-    // Mas com a config atual, deve funcionar se o SecurityConfig estiver separado.
     private final PasswordEncoder passwordEncoder;
+    private final FileStorageService fileStorageService;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, FileStorageService fileStorageService) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.fileStorageService = fileStorageService;
     }
 
-    // Método exigido pelo Spring Security para login
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return usuarioRepository.findByEmail(email)
@@ -52,14 +52,11 @@ public class UsuarioService implements UserDetailsService {
         Optional<Usuario> usuarioExistente = usuarioRepository.findById(id);
         if (usuarioExistente.isPresent()) {
             usuarioAtualizado.setId(id);
-
-            // Se a senha foi alterada, criptografa novamente. Se vier vazia, mantém a antiga.
             if (usuarioAtualizado.getSenha() != null && !usuarioAtualizado.getSenha().isEmpty()) {
                 usuarioAtualizado.setSenha(passwordEncoder.encode(usuarioAtualizado.getSenha()));
             } else {
                 usuarioAtualizado.setSenha(usuarioExistente.get().getSenha());
             }
-
             return usuarioRepository.save(usuarioAtualizado);
         }
         return null;
@@ -71,5 +68,20 @@ public class UsuarioService implements UserDetailsService {
             return true;
         }
         return false;
+    }
+
+    public Usuario atualizarFoto(UUID id, MultipartFile file) {
+        Usuario usuario = buscarPorId(id);
+        if (usuario == null) throw new RuntimeException("Usuário não encontrado");
+
+        String fileName = fileStorageService.storeFile(file);
+
+        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/uploads/")
+                .path(fileName)
+                .toUriString();
+
+        usuario.setFotoPerfil(fileDownloadUri);
+        return usuarioRepository.save(usuario);
     }
 }

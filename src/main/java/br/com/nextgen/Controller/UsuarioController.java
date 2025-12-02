@@ -10,6 +10,8 @@ import br.com.nextgen.Entity.Usuario;
 import br.com.nextgen.Service.UsuarioService;
 import br.com.nextgen.Infra.Security.TokenService;
 import jakarta.validation.Valid;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -96,7 +98,21 @@ public class UsuarioController {
         }
         return ResponseEntity.notFound().build();
     }
+    @PutMapping(value = "/{id}/foto", consumes = "multipart/form-data")
+    public ResponseEntity<UsuarioResponseDTO> uploadFotoPerfil(
+            @PathVariable UUID id,
+            @RequestParam("foto") MultipartFile file) {
 
+        // Chama o método no service que salva o arquivo e atualiza o usuário
+        // Nota: Certifique-se de ter criado o método 'atualizarFoto' no UsuarioService conforme o passo anterior
+        Usuario usuarioAtualizado = usuarioService.atualizarFoto(id, file);
+
+        if (usuarioAtualizado != null) {
+            return ResponseEntity.ok(new UsuarioResponseDTO(usuarioAtualizado));
+        }
+
+        return ResponseEntity.notFound().build();
+    }
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarUsuario(@PathVariable UUID id) {
         Boolean deletado = usuarioService.deletar(id);
