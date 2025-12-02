@@ -18,8 +18,8 @@ import java.util.UUID;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "Talhao")
-@SQLDelete(sql = "UPDATE Talhao SET ativo = false WHERE id = ?")
+@Table(name = "talhao")
+@SQLDelete(sql = "UPDATE talhao SET ativo = false WHERE id = ?")
 public class Talhao {
 
     @Id
