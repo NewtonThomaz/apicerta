@@ -1,5 +1,6 @@
 package br.com.nextgen.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -43,16 +44,11 @@ public class Usuario implements UserDetails {
     private String email;
 
     @NotBlank(message = "A senha é obrigatória")
-    // @Pattern removido aqui pois a senha será hash (texto criptografado não segue o padrão da senha original)
-    // A validação de força de senha deve ser feita apenas no DTO de entrada
     @Column(nullable = false)
     private String senha;
 
-    // --- Métodos do UserDetails ---
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Se tiver roles, adicione aqui. Ex: return List.of(new SimpleGrantedAuthority("ROLE_USER"));
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
@@ -63,7 +59,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email; // O "username" do Spring Security será nosso email
+        return email;
     }
 
     @Override

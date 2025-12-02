@@ -34,7 +34,7 @@ public class Cultura {
 
     @ManyToMany(mappedBy = "culturas")
     @ToString.Exclude
-    @JsonIgnore
+//    @JsonIgnore
     @EqualsAndHashCode.Exclude
     private List<Talhao> talhoes;
 }
