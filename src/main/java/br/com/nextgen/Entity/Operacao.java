@@ -26,12 +26,12 @@ public class Operacao {
     private UUID id;
 
     @NotBlank(message = "A descrição da operação é obrigatória")
-    @Size(min = 3, max = 150, message = "A descrição da operação deve ter entre 3 e 150 caracteres")
+    @Size(max = 150, message = "A descrição da operação deve ter entre 3 e 150 caracteres")
     @Column(nullable = false)
     private String operacao;
 
     @NotBlank(message = "O agente é obrigatório")
-    @Size(min = 2, max = 100, message = "O nome do agente deve ter entre 2 e 100 caracteres")
+    @Size(max = 100, message = "O nome do agente deve ter entre 2 e 100 caracteres")
     @Column(nullable = false)
     private String agente;
 

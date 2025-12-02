@@ -1,5 +1,6 @@
 package br.com.nextgen.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -33,6 +34,7 @@ public class Cultura {
 
     @ManyToMany(mappedBy = "culturas")
     @ToString.Exclude
+    @JsonIgnore
     @EqualsAndHashCode.Exclude
     private List<Talhao> talhoes;
 }

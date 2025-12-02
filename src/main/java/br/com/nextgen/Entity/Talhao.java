@@ -64,7 +64,7 @@ public class Talhao {
     @EqualsAndHashCode.Exclude
     private List<Colaborador> colaboradores;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "Talhao_Cultura",
             joinColumns = @JoinColumn(name = "id_talhao"),
@@ -72,6 +72,7 @@ public class Talhao {
     )
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @JsonIgnore
     private List<Cultura> culturas;
 
     @OneToMany(mappedBy = "talhao", cascade = CascadeType.ALL)

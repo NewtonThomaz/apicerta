@@ -1,6 +1,6 @@
 package br.com.nextgen.Service;
 
-import br.com.nextgen.DTO.OperacaoRequestDTO; // <--- Importante: Use o RequestDTO aqui
+import br.com.nextgen.DTO.OperacaoRequestDTO;
 import br.com.nextgen.Entity.Operacao;
 import br.com.nextgen.Entity.Talhao;
 import br.com.nextgen.Repository.OperacaoRepository;
