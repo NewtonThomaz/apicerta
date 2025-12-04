@@ -1,5 +1,6 @@
 package br.com.nextgen.Service;
 
+import br.com.nextgen.DTO.UsuarioUpdateDTO;
 import br.com.nextgen.Entity.Usuario;
 import br.com.nextgen.Repository.UsuarioRepository;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,18 +49,25 @@ public class UsuarioService implements UserDetailsService {
         return usuarioRepository.save(usuario);
     }
 
-    public Usuario atualizar(UUID id, Usuario usuarioAtualizado) {
-        Optional<Usuario> usuarioExistente = usuarioRepository.findById(id);
-        if (usuarioExistente.isPresent()) {
-            usuarioAtualizado.setId(id);
-            if (usuarioAtualizado.getSenha() != null && !usuarioAtualizado.getSenha().isEmpty()) {
-                usuarioAtualizado.setSenha(passwordEncoder.encode(usuarioAtualizado.getSenha()));
-            } else {
-                usuarioAtualizado.setSenha(usuarioExistente.get().getSenha());
-            }
-            return usuarioRepository.save(usuarioAtualizado);
+    public Usuario atualizar(UUID id, UsuarioUpdateDTO dados) {
+        Usuario usuario = buscarPorId(id);
+        if (usuario == null) return null;
+        // Só atualiza se o dado foi enviado (não é nulo nem vazio)
+        if (dados.nome() != null && !dados.nome().isBlank()) {
+            usuario.setNome(dados.nome());
         }
-        return null;
+        if (dados.email() != null && !dados.email().isBlank()) {
+            usuario.setEmail(dados.email());
+        }
+        if (dados.senha() != null && !dados.senha().isBlank()) {
+            usuario.setSenha(dados.senha());
+        }
+
+        if (dados.fotoPerfil() != null) {
+            usuario.setFotoPerfil(dados.fotoPerfil());
+        }
+
+        return usuarioRepository.save(usuario);
     }
 
     public Boolean deletar(UUID id) {

@@ -8,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,32 +30,36 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
-                // Habilitamos o CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        // Rotas públicas de autenticação
+                        // Rotas de Autenticação
                         .requestMatchers(HttpMethod.POST, "/usuarios/auth").permitAll()
                         .requestMatchers(HttpMethod.POST, "/usuarios/register").permitAll()
 
-                        // NOVA LINHA: Libera o acesso às imagens do bucket local
-                        // Isso permite que o navegador carregue http://localhost:8080/uploads/foto.png
-                        .requestMatchers("/uploads/**").permitAll()
+                        // Rotas de arquivos estáticos (Redundância necessária)
+                        .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
 
-                        // Qualquer outra rota exige login
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
+    // IGNORA COMPLETAMENTE A SEGURANÇA PARA UPLOADS
+    // Isso garante que o Spring Security não interfira no acesso às imagens
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().requestMatchers("/uploads/**");
+    }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Libera o acesso para o seu Front (localhost:3000) e também 127.0.0.1
+        // Permite acesso do localhost e IP local
         configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://127.0.0.1:3000"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "TRACE", "CONNECT"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 

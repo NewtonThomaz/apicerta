@@ -1,5 +1,6 @@
 package br.com.nextgen.Controller;
 
+import br.com.nextgen.DTO.UsuarioUpdateDTO;
 import br.com.nextgen.DTO.UsuarioDTO; // Importe o DTO
 import java.util.stream.Collectors;
 import br.com.nextgen.DTO.LoginRequestDTO;
@@ -42,15 +43,9 @@ public class UsuarioController {
 
     @PostMapping("/auth")
     public ResponseEntity<LoginResponseDTO> autenticar(@RequestBody @Valid LoginRequestDTO loginDTO) {
-        // Cria o token de autenticação com os dados recebidos
         var usernamePassword = new UsernamePasswordAuthenticationToken(loginDTO.email(), loginDTO.senha());
-
-        // O Spring Security cuida de verificar a senha criptografada no banco
         var auth = this.authenticationManager.authenticate(usernamePassword);
-
-        // Se chegou aqui, a senha está correta. Gera o token JWT
         var token = tokenService.generateToken((Usuario) auth.getPrincipal());
-
         return ResponseEntity.ok(new LoginResponseDTO(token));
     }
 
@@ -73,31 +68,30 @@ public class UsuarioController {
 
     @PostMapping("/register")
     public ResponseEntity<UsuarioResponseDTO> criarUsuario(@RequestBody @Valid UsuarioRequestDTO usuarioDTO) {
-        // Conversão manual DTO -> Entity
         Usuario usuario = new Usuario();
         usuario.setNome(usuarioDTO.nome());
         usuario.setEmail(usuarioDTO.email());
         usuario.setSenha(usuarioDTO.senha()); // A criptografia ocorre no Service
         usuario.setFotoPerfil(usuarioDTO.fotoPerfil());
-
         Usuario novoUsuario = usuarioService.salvar(usuario);
         return ResponseEntity.status(HttpStatus.CREATED).body(new UsuarioResponseDTO(novoUsuario));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDTO> atualizarUsuario(@PathVariable UUID id, @RequestBody @Valid UsuarioRequestDTO usuarioDTO) {
-        Usuario usuario = new Usuario();
-        usuario.setNome(usuarioDTO.nome());
-        usuario.setEmail(usuarioDTO.email());
-        usuario.setSenha(usuarioDTO.senha());
-        usuario.setFotoPerfil(usuarioDTO.fotoPerfil());
+    public ResponseEntity<UsuarioResponseDTO> atualizarUsuario(@PathVariable UUID id, @RequestBody UsuarioUpdateDTO usuarioDTO) {
+        // 1. Removemos o @Valid para permitir campos nulos
+        // 2. Mudamos o tipo recebido para UsuarioUpdateDTO
+        // 3. Passamos direto para o service, sem criar um "new Usuario()" manual aqui,
+        //    pois o service que vai decidir o que atualizar.
 
-        Usuario usuarioAtualizado = usuarioService.atualizar(id, usuario);
+        Usuario usuarioAtualizado = usuarioService.atualizar(id, usuarioDTO);
+
         if (usuarioAtualizado != null) {
             return ResponseEntity.ok(new UsuarioResponseDTO(usuarioAtualizado));
         }
         return ResponseEntity.notFound().build();
     }
+
     @PutMapping(value = "/{id}/foto", consumes = "multipart/form-data")
     public ResponseEntity<UsuarioResponseDTO> uploadFotoPerfil(
             @PathVariable UUID id,
